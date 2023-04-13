@@ -1,0 +1,15 @@
+cryptography
+deta
+requests
+fastapi==0.92.0
+jose
+passlib
+pydantic
+python-dotenv
+python_bcrypt
+python_jose
+uvicorn
+bcrypt
+pydantic[email]
+python-multipart
+pymongo
