@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import requests
 from db_users import get_users, get_user_by_username
 
+load_dotenv()
 
 def send_keys_to_remote_server(public_key:str, symmetric_key:str, username:str, hashed_password:str):
     """

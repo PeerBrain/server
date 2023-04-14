@@ -11,13 +11,14 @@ from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Form, HTTPException, Path, Query, status
 from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from slowapi.errors import RateLimitExceeded
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+# from slowapi.errors import RateLimitExceeded
+# from slowapi import Limiter, _rate_limit_exceeded_handler
+# from slowapi.util import get_remote_address
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 import pyotp
 import sentry_sdk
+from uvicorn import run
 
 sys.path.append('./db_code')
 sys.path.append('./email_code')
@@ -34,8 +35,11 @@ from models import (KeyStore,
                     PasswordResetUser, 
                     MessageObject)
 
+from settings import load_settings_or_prompt
+
 #---LOAD ENV VARS----#
-load_dotenv()
+load_settings_or_prompt()
+#load_dotenv()
 
 #---SECURITY SETUP---#
 SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -608,6 +612,23 @@ async def read_users_me(current_user : User = Depends(get_current_active_user)):
     
     return current_user
 
+@app.get("/api/v1/me/delete")
+async def delete_user(current_user : User = Depends(get_current_active_user)):
+    """
+    Delete a user from the USERS collection in the database.
+    
+    Parameters:
+    - current_user (User): The current authenticated user. Defaults to Depends(get_current_active_user).
+    
+    Returns:
+    - User: None
+    
+    Raises:
+    - HTTPException: Raised if the user cannot be found or is not active.
+    """
+    
+    return db_users.delete_user_from_db(current_user.username)
+
 # endpoint to add an otp secret to a user
 @app.post("/api/v1/me/otp")
 async def add_otp_secret(key, current_user : User = Depends(get_current_active_user)):
@@ -873,3 +894,9 @@ async def post_conversation(message_object : MessageObject,  current_user : User
         return message_status
     return
 
+
+
+
+#------------------------------------------------------------------#
+if __name__ == "__main__":
+    run(app, host="127.0.0.1", port=8000, log_level=logging.INFO)
