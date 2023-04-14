@@ -196,6 +196,7 @@ def change_password(username, pw_to_hash)->str:
         logging.error("Error: %s", e)
     else:
         logging.info(f"Password changed successfully for user {username}")
+
 def add_otp_secret(username, key):
     """
     Add the OTP secret key to the user document in the database.
@@ -259,3 +260,45 @@ def confirm_registration_token(username:str)->None:
         logging.error("Error: %s", e)
     else:
         logging.info(f"User email verification successful for {username}")
+
+def delete_user_from_db(username:str)->None:
+    """
+    Delete a user from the USERS collection in the database.
+
+    Args:
+        username (str): The username of the user to delete.
+
+    Returns:
+        None
+
+    This function attempts to delete a user document with the specified
+    username from the USERS collection. If the deletion is successful and
+    the user is deleted, it returns a formatted string indicating the
+    success of the operation. If no documents matched the query, a warning
+    message is logged.
+
+    Possible exceptions such as DuplicateKeyError, InvalidDocument,
+    ConnectionFailure, and other PyMongoErrors are caught and logged with
+    appropriate error messages.
+    """
+    try:
+        delete_user = USERS.delete_one({"username": username})
+        if delete_user.acknowledged:
+            return f"User {username} successfully deleted!"
+        
+            
+        elif delete_user.deleted_count == 0:
+            logging.warning("No documents matched the query")
+    
+    except DuplicateKeyError as e:
+        logging.error("Error: Duplicate key - %s", e)
+    except InvalidDocument as e:
+        logging.error("Error: Invalid document - %s", e)
+    except ConnectionFailure as e:
+        logging.error("Error: Database connection failed - %s", e)
+    except PyMongoError as e:
+        logging.error("Error: %s", e)
+    else:
+        logging.info("User document deleted for username: %s", username)
+
+

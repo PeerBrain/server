@@ -612,6 +612,23 @@ async def read_users_me(current_user : User = Depends(get_current_active_user)):
     
     return current_user
 
+@app.get("/api/v1/me/delete")
+async def delete_user(current_user : User = Depends(get_current_active_user)):
+    """
+    Delete a user from the USERS collection in the database.
+    
+    Parameters:
+    - current_user (User): The current authenticated user. Defaults to Depends(get_current_active_user).
+    
+    Returns:
+    - User: None
+    
+    Raises:
+    - HTTPException: Raised if the user cannot be found or is not active.
+    """
+    
+    return db_users.delete_user_from_db(current_user.username)
+
 # endpoint to add an otp secret to a user
 @app.post("/api/v1/me/otp")
 async def add_otp_secret(key, current_user : User = Depends(get_current_active_user)):
@@ -877,5 +894,9 @@ async def post_conversation(message_object : MessageObject,  current_user : User
         return message_status
     return
 
+
+
+
+#------------------------------------------------------------------#
 if __name__ == "__main__":
     run(app, host="127.0.0.1", port=8000, log_level=logging.INFO)
