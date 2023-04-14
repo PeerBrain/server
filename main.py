@@ -429,7 +429,7 @@ async def get_password_reset_token(user : PasswordResetUser):
         email = user_object["email"]
         db_pw_reset.create_password_reset_token(username, email)
         #Added return to notify user that the email got sent out!
-        return {"Password Reset Email Sent Successfully!" : f"Email sent to {email}"}
+        return {"Password Reset Email Sent Successfully!"}
       
 @app.get(f"/{RESET_PASSWORD_ROUTE}/reset-password")  
 async def reset_user_password(username:str, token:str):
