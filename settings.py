@@ -55,7 +55,7 @@ def load_settings_or_prompt():
             f.write(f"EMAIL_SENDER={email_sender}\n")
             f.write(f"EMAIL_USERNAME={email_username}\\nn")
             
-            f.write(f"#Reset Password route")            
+            f.write(f"#Reset Password route\n")            
             f.write(f"RESET_PASSWORD_ROUTE={reset_password_route}\n")
 
     # Load the environment variables from the .env file
