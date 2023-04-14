@@ -18,6 +18,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 import pyotp
 import sentry_sdk
+from uvicorn import run
 
 sys.path.append('./db_code')
 sys.path.append('./email_code')
@@ -34,8 +35,11 @@ from models import (KeyStore,
                     PasswordResetUser, 
                     MessageObject)
 
+from settings import load_settings_or_prompt
+
 #---LOAD ENV VARS----#
-load_dotenv()
+load_settings_or_prompt()
+#load_dotenv()
 
 #---SECURITY SETUP---#
 SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -873,3 +877,5 @@ async def post_conversation(message_object : MessageObject,  current_user : User
         return message_status
     return
 
+if __name__ == "__main__":
+    run(app, host="127.0.0.1", port=8000, log_level=logging.INFO)
