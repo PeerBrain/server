@@ -1,15 +1,21 @@
 import hashlib
+import logging
+import os
 import secrets
 
 import pymongo
-import logging
-from pymongo.errors import DuplicateKeyError, InvalidDocument, ConnectionFailure, PyMongoError
 from dotenv import load_dotenv
-from email_code.email_code import confirmation_mail
 from passlib.context import CryptContext
+from pymongo.errors import (ConnectionFailure, DuplicateKeyError,
+                            InvalidDocument, PyMongoError)
+
+from email_code.email_code import confirmation_mail
+
+load_dotenv()
 
 #---DB COLLECTION INIT---#
-client = pymongo.MongoClient("mongodb://localhost:27017/")
+DATABASE_URI = os.environ.get('DATABASE_URI')
+client = pymongo.MongoClient(DATABASE_URI)
 PeerbrainDB = client["peerbrain_db"]
 USERS = PeerbrainDB["users"]
 

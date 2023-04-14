@@ -1,0 +1,21 @@
+#Fast API Secret key ==> To be randomly generated in the future
+SECRET_KEY = 
+
+#Peerbrain application server url
+SERVER_URL = 
+
+#Database URI
+DATABASE_URI = 
+
+#Symmetric Key Server API Credentials
+SYM_KEY_API_URL = 
+SYM_KEY_API_KEY = 
+SYM_KEY_X_API_KEY = 
+
+#Email Credentials
+EMAIL_PASS=
+EMAIL_SENDER=
+EMAIL_USERNAME=
+
+#Reset Password route ==> To be randomly generated in the future
+RESET_PASSWORD_ROUTE=

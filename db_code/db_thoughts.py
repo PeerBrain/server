@@ -2,15 +2,20 @@
 import json
 import logging
 import math
+import os
 from datetime import datetime
 from uuid import uuid4
+
 import pymongo
 from dotenv import load_dotenv
 from pymongo.errors import (ConnectionFailure, DuplicateKeyError,
                             InvalidDocument, PyMongoError)
 
+load_dotenv()
+
 #---DB COLLECTION INIT---#
-client = pymongo.MongoClient("mongodb://localhost:27017/")
+DATABASE_URI = os.environ.get('DATABASE_URI')
+client = pymongo.MongoClient(DATABASE_URI)
 PeerbrainDB = client["peerbrain_db"]
 THOUGHTS = PeerbrainDB["thoughts"]
 

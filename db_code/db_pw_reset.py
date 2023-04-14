@@ -1,15 +1,20 @@
 import logging
+import os
 import secrets
 from datetime import datetime, timedelta
 
 import pymongo
 from dotenv import load_dotenv
-from email_code.email_code import password_reset_mail
 from pymongo.errors import (ConnectionFailure, DuplicateKeyError,
                             InvalidDocument, PyMongoError)
 
+from email_code.email_code import password_reset_mail
+
+load_dotenv()
+
 #---DB COLLECTION INIT---#
-client = pymongo.MongoClient("mongodb://localhost:27017/")
+DATABASE_URI = os.environ.get('DATABASE_URI')
+client = pymongo.MongoClient(DATABASE_URI)
 PeerbrainDB = client["peerbrain_db"]
 PW_RESET = PeerbrainDB["pw_reset"]
 
