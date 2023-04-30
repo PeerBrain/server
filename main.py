@@ -20,6 +20,7 @@ from passlib.context import CryptContext
 import pyotp
 import sentry_sdk
 from uvicorn import run
+from fastapi.middleware.cors import CORSMiddleware
 
 sys.path.append('./db_code')
 sys.path.append('./email_code')
@@ -51,6 +52,12 @@ fernet = Fernet(OTP_KEY)
 pwd_context = CryptContext(schemes =["bcrypt"], deprecated="auto")
 oauth_2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 RESET_PASSWORD_ROUTE = os.environ.get("RESET_PASSWORD_ROUTE")
+origins = [
+    "https://peerbrain.teckhawk.be",
+    "https://web.peerbrain.net",
+    "https://mfa.peerbrain.net",
+    "https://status.peerbrain.net"
+]
 
 # ---Bug reporting and performance ---#
 
@@ -65,6 +72,13 @@ sentry_sdk.init(
 #---APP INIT---#
 # limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # app.state.limiter = limiter
 # app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -433,7 +447,7 @@ async def get_password_reset_token(user : PasswordResetUser):
         email = user_object["email"]
         db_pw_reset.create_password_reset_token(username, email)
         #Added return to notify user that the email got sent out!
-        return {"Password Reset Email Sent Successfully!" : f"Email sent to {email}"}
+        return {"Password Reset Email Sent Successfully!"}
       
 @app.get(f"/{RESET_PASSWORD_ROUTE}/reset-password")  
 async def reset_user_password(username:str, token:str):
