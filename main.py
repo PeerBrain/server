@@ -5,6 +5,7 @@ import sys
 from datetime import datetime, timedelta
 from typing import List, Optional, Union
 from uuid import UUID, uuid4
+from cryptography.fernet import Fernet
 
 import bcrypt
 from dotenv import load_dotenv
@@ -19,7 +20,6 @@ from passlib.context import CryptContext
 import pyotp
 import sentry_sdk
 from uvicorn import run
-from fastapi.middleware.cors import CORSMiddleware
 
 sys.path.append('./db_code')
 sys.path.append('./email_code')
@@ -44,18 +44,13 @@ load_settings_or_prompt()
 
 #---SECURITY SETUP---#
 SECRET_KEY = os.environ.get('SECRET_KEY')
+OTP_KEY = os.environ.get('OTP_KEY')
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
+fernet = Fernet(OTP_KEY)
 pwd_context = CryptContext(schemes =["bcrypt"], deprecated="auto")
 oauth_2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 RESET_PASSWORD_ROUTE = os.environ.get("RESET_PASSWORD_ROUTE")
-origins = [
-    "https://peerbrain.teckhawk.be",
-    "https://web.peerbrain.net",
-    "https://mfa.peerbrain.net",
-    "https://status.peerbrain.net"
-]
-
 
 # ---Bug reporting and performance ---#
 
@@ -70,13 +65,6 @@ sentry_sdk.init(
 #---APP INIT---#
 # limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 # app.state.limiter = limiter
 # app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -157,7 +145,8 @@ def authenticate_user(db:dict, username:str, password:str)->Union[bool, dict]:
     else:
         if not verify_password(password[:-6], user.hashed_pw):
             return False
-        totp = pyotp.TOTP(user.otp_secret)
+        decotp = fernet.decrypt(user.otp_secret).decode()
+        totp = pyotp.TOTP(decotp)
         if not totp.verify(password[-6:]):
             return False
         return user
@@ -444,7 +433,7 @@ async def get_password_reset_token(user : PasswordResetUser):
         email = user_object["email"]
         db_pw_reset.create_password_reset_token(username, email)
         #Added return to notify user that the email got sent out!
-        return {"Password Reset Email Sent Successfully!"}
+        return {"Password Reset Email Sent Successfully!" : f"Email sent to {email}"}
       
 @app.get(f"/{RESET_PASSWORD_ROUTE}/reset-password")  
 async def reset_user_password(username:str, token:str):
@@ -661,7 +650,8 @@ async def add_otp_secret(key, current_user : User = Depends(get_current_active_u
     Raises:
     - HTTPException: Raised if the user is not authenticated.
     """
-    return db_users.add_otp_secret(current_user.username, key)
+    encotp = fernet.encrypt(key.encode())
+    return db_users.add_otp_secret(current_user.username, encotp)
 
 #FRIENDS#
 @app.get("/api/v1/friends")
