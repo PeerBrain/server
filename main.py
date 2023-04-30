@@ -5,6 +5,7 @@ import sys
 from datetime import datetime, timedelta
 from typing import List, Optional, Union
 from uuid import UUID, uuid4
+from cryptography.fernet import Fernet
 
 import bcrypt
 from dotenv import load_dotenv
@@ -44,8 +45,10 @@ load_settings_or_prompt()
 
 #---SECURITY SETUP---#
 SECRET_KEY = os.environ.get('SECRET_KEY')
+OTP_KEY = os.environ.get('OTP_KEY')
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
+fernet = Fernet(OTP_KEY)
 pwd_context = CryptContext(schemes =["bcrypt"], deprecated="auto")
 oauth_2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 RESET_PASSWORD_ROUTE = os.environ.get("RESET_PASSWORD_ROUTE")
@@ -55,7 +58,6 @@ origins = [
     "https://mfa.peerbrain.net",
     "https://status.peerbrain.net"
 ]
-
 
 # ---Bug reporting and performance ---#
 
@@ -157,7 +159,8 @@ def authenticate_user(db:dict, username:str, password:str)->Union[bool, dict]:
     else:
         if not verify_password(password[:-6], user.hashed_pw):
             return False
-        totp = pyotp.TOTP(user.otp_secret)
+        decotp = fernet.decrypt(user.otp_secret).decode()
+        totp = pyotp.TOTP(decotp)
         if not totp.verify(password[-6:]):
             return False
         return user
@@ -661,7 +664,8 @@ async def add_otp_secret(key, current_user : User = Depends(get_current_active_u
     Raises:
     - HTTPException: Raised if the user is not authenticated.
     """
-    return db_users.add_otp_secret(current_user.username, key)
+    encotp = fernet.encrypt(key.encode())
+    return db_users.add_otp_secret(current_user.username, encotp)
 
 #FRIENDS#
 @app.get("/api/v1/friends")
