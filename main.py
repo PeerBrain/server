@@ -62,12 +62,13 @@ origins = [
 # ---Bug reporting and performance ---#
 
 sentry_sdk.init(
-    dsn="https://ae48bd3df1aa40549995d970162f85eb@o4504878133018624.ingest.sentry.io/4504878182105089",
+    dsn="https://fec158144d2b458d8a3590dde9a39393@o575799.ingest.sentry.io/4505206823124992",
+
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.
     # We recommend adjusting this value in production,
     traces_sample_rate=1.0,
-)
+    profiles_sample_rate=1.0,
 
 #---APP INIT---#
 # limiter = Limiter(key_func=get_remote_address)
