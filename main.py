@@ -48,7 +48,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 OTP_KEY = os.environ.get('OTP_KEY')
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
-fernet = Fernet(OTP_KEY)
+OTP_SECURE = Fernet(OTP_KEY)
 pwd_context = CryptContext(schemes =["bcrypt"], deprecated="auto")
 oauth_2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 RESET_PASSWORD_ROUTE = os.environ.get("RESET_PASSWORD_ROUTE")
@@ -69,7 +69,7 @@ sentry_sdk.init(
     # We recommend adjusting this value in production,
     traces_sample_rate=1.0,
     profiles_sample_rate=1.0,
-
+)
 #---APP INIT---#
 # limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
@@ -160,7 +160,7 @@ def authenticate_user(db:dict, username:str, password:str)->Union[bool, dict]:
     else:
         if not verify_password(password[:-6], user.hashed_pw):
             return False
-        decotp = fernet.decrypt(user.otp_secret).decode()
+        decotp = OTP_SECURE.decrypt(user.otp_secret).decode()
         totp = pyotp.TOTP(decotp)
         if not totp.verify(password[-6:]):
             return False
@@ -665,7 +665,7 @@ async def add_otp_secret(key, current_user : User = Depends(get_current_active_u
     Raises:
     - HTTPException: Raised if the user is not authenticated.
     """
-    encotp = fernet.encrypt(key.encode())
+    encotp = OTP_SECURE.encrypt(key.encode())
     return db_users.add_otp_secret(current_user.username, encotp)
 
 #FRIENDS#

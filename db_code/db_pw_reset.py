@@ -14,8 +14,9 @@ load_dotenv()
 
 #---DB COLLECTION INIT---#
 DATABASE_URI = os.environ.get('DATABASE_URI')
+DATABASE_NAME = os.environ.get('DATABASE_NAME')
 client = pymongo.MongoClient(DATABASE_URI)
-PeerbrainDB = client["peerbrain_db"]
+PeerbrainDB = client[DATABASE_NAME]
 PW_RESET = PeerbrainDB["pw_reset"]
 
 
