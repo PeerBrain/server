@@ -9,7 +9,7 @@ load_dotenv()
 
 #---MAIL VARS---#
 #SMTP_SERVER = "send.one.com"
-SMTP_SERVER = "smtp.sendgrid.net"
+SMTP_SERVER = os.environ.get("EMAIL_SERVER")
 SMTP_PORT = 465
 SENDER = os.environ.get("EMAIL_SENDER")
 PASSWORD = os.environ.get("EMAIL_PASS")
