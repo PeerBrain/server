@@ -56,7 +56,8 @@ origins = [
     "https://peerbrain.teckhawk.be",
     "https://web.peerbrain.net",
     "https://mfa.peerbrain.net",
-    "https://status.peerbrain.net"
+    "https://status.peerbrain.net",
+    "https://beadman-dev.p2pb.dev"
 ]
 
 # ---Bug reporting and performance ---#
