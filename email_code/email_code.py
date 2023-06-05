@@ -37,8 +37,7 @@ def confirmation_mail(receiver:str, username:str, token:str):
     {url}confirm-email?token={token}&username={username}
         
     Sincerely,
-    
-    Team Peerbrain
+    The Peer Brain Team
     """
     html = f"""\
     <html>
@@ -51,8 +50,7 @@ def confirmation_mail(receiver:str, username:str, token:str):
         
         <br>  <br> 
         Sincerely,<br>
-        <br>
-        Team Peerbrain
+        The Peer Brain Team
         </p>
     </body>
     </html>
@@ -80,7 +78,7 @@ def confirmation_mail(receiver:str, username:str, token:str):
 def password_reset_mail(receiver:str, username:str, token:str):
         
     message = MIMEMultipart("alternative")
-    message["Subject"] = f"Reset the password for your Peerbrain account"
+    message["Subject"] = f"Reset the password for your Peer Brain account"
     message["From"] = SENDER
     message["To"] = receiver
 
@@ -93,11 +91,10 @@ def password_reset_mail(receiver:str, username:str, token:str):
     {url}{RESET_PASSWORD_ROUTE}/reset-password?token={token}&username={username}
     
     \n 
-    Please be aware that this link will expire in 5 minutes!
+    This link will expire in 5 minutes.
     \n    
     Sincerely,
-    
-    Team Peerbrain
+    The Peer Brain Team
     """
     html = f"""\
     <html>
@@ -105,17 +102,14 @@ def password_reset_mail(receiver:str, username:str, token:str):
         <p>Dear {username},<br><br>
         Please click the link below to reset your password: <br>
         <br>
-        
         <b><a href="{url}{RESET_PASSWORD_ROUTE}/reset-password?token={token}&username={username}">{reset_password_link_text}</a></b>
-        
         <br>
         <br> 
-        <b>Please be aware that this link will expire in 5 minutes!</b>
+        <b>This link will expire in 5 minutes.</b>
         <br> 
         <br>
         Sincerely,<br>
-        <br>
-        Team Peerbrain
+        The Peer Brain Team
         </p>
     </body>
     </html>
